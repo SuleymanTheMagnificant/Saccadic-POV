@@ -41,18 +41,22 @@ void PresentImage(unsigned long time, const unsigned int array[]){
   int f= numberOfSlices;
   int z; //a counter
   int j=NUM_LEDS;
+  Serial.print("Time before line: ");
+     Serial.println(micros());
     for (int x=0;x<f;x++){
      for(z=NUM_LEDS;z>0;z--){
      leds[z-1]=array[x+((j-z)*f)];}
      FastLED.show();
-     delayMicroseconds(40); //increase / decrease depending on presentation rate
-     }       
-    delayMicroseconds(1000); //increase / decrease depending on presentation rate
+     delayMicroseconds(40); //increase / testing indicates that this adds a constant to a 136microsecond line drawing time
+     Serial.print("Time after line: ");
+     Serial.println(micros());
+     }    
+    delayMicroseconds(1000); //increase / Testing indicates this adds a constant to a 2 microsecond delay between presentations
    }
  }
 
 void loop() {  
-    PresentImage(4000,cross); //show image for 4 secs
-    PresentImage(4000,zero);
-    PresentImage(4000,mario);
+   PresentImage(4000,cross); //show image for 4 secs
+   PresentImage(4000,zero);
+   PresentImage(4000,mario);
   }
