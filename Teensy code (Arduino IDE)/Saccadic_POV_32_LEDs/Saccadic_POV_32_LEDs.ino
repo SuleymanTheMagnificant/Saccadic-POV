@@ -15,11 +15,12 @@ Documentation for FastLed is here: https://github.com/FastLED/FastLED/wiki
 
 // Serial command verbs
 #define POV_NO_MSG 0
-#define POV_SHOW 's'
-#define POV_OFF 'o'
 #define POV_BRIGHTNESS 'b'
-#define POV_PICK 'p'
 #define POV_CYCLE 'c'
+#define POV_PICK 'p'
+#define POV_OFF 'o'
+#define POV_SHOW 's'
+#define POV_TIME 't'
 
 bool cycle = true;
 int numberOfSlices = 32;
@@ -64,6 +65,11 @@ void serial_handler() {
           Serial.println(CurrentImage);
           lastmsg = POV_NO_MSG;
           break;
+        case POV_TIME:
+          display_duration = (msg-'0')*1000;
+          Serial.println(display_duration);
+          lastmsg = POV_NO_MSG;
+          break;
         default:
           break;
       }
@@ -73,7 +79,7 @@ void serial_handler() {
         Serial.println("Displaying picture.");
         showing = true;
         cycle = false;
-        time_to_stop = millis() + 4000;
+        time_to_stop = millis() + display_duration;
         break;
       case POV_BRIGHTNESS:
         Serial.print("Setting brightness to ");
@@ -93,6 +99,10 @@ void serial_handler() {
         Serial.println("Cycling through all images.");
         cycle = true;
         showing = false;
+        break;
+      case POV_TIME: 
+        Serial.print("Setting display time to ");
+        expect = 1;
         break;
       default:
         break;
