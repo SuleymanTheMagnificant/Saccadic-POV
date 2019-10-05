@@ -113,6 +113,8 @@ void serial_handler() {
 
 void setup() {
   Serial.begin(9600);
+  pinMode(7, OUTPUT);
+  digitalWrite(7, HIGH);  // enable access to LEDs on Prop Shield
   FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);// http://fastled.io/docs/3.1/group___color_enums.html
   delay(200);
   FastLED.setTemperature(TypicalSMD5050); // http://fastled.io/docs/3.1/group___color_enums.html
