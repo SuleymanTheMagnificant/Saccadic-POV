@@ -19,25 +19,38 @@
 
 #include <PWMServo.h>
 
+typedef enum {STD, DS760} servotypes;
+
+const servotypes servo_type = DS760;
+
 PWMServo myservo;  // create servo object to control a servo
 
-int pos = 0;    // variable to store the servo position
+float pos = 0.;    // variable to store the servo position
+
+int slewdegrees = 60;
+int delaymicros = 2200 + 2100/slewdegrees;
+// int delaymicros = 10; // Super fast, for testing
+
+float scalefactor = 1.0;  // Compensates for servos whose full travel is not 180 degrees
 
 void setup() {
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+  if (servo_type == DS760) {
+    myservo.attach(9,400,1100);  // attaches the servo on pin 9 to the servo object -- MKS DS760 servo timings
+    scalefactor = 180.0/120.0;  // DS760 only goes 120 degrees
+  } else {
+    myservo.attach(9);  // attaches the servo on pin 9 to the servo object -- Standard servo
+  }
+  delaymicros = 2200+2100/slewdegrees;
 }
 
-int slewdegrees = 20;
-int delaymicros = 2200 + 21000/slewdegrees;
-
 void loop() {
-  for(pos = 0; pos < slewdegrees; pos += 1) { // 1 degree steps
-    myservo.write(90+pos);              // tell servo to go to position in variable 'pos'
+  for(pos = 0.; pos < slewdegrees*scalefactor; pos += 1*scalefactor) { // 1 degree steps
+    myservo.write(20+pos);              // tell servo to go to position in variable 'pos'
     delayMicroseconds(delaymicros);                       // wait for the servo to reach the position
   }
   delay(1000); // wait a second
-  for(pos = slewdegrees; pos > 0; pos -= 1) { // 1 degree steps
-    myservo.write(90+pos);              // tell servo to go to position in variable 'pos'
+  for(pos = slewdegrees*scalefactor; pos > 0.; pos -= 1*scalefactor) { // 1 degree steps
+    myservo.write(20+pos);              // tell servo to go to position in variable 'pos'
     delayMicroseconds(delaymicros);                       // wait for the servo to reach the position
   }
   delay(1000); // wait a second

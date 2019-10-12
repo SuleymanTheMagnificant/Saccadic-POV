@@ -45,7 +45,14 @@ CLK to A5
 Adafruit_LiquidCrystal lcd(0);
 
 PWMServo myservo;  // create servo object to control a servo
-int pos = 0;    // variable to store the servo position
+
+typedef enum {STD, DS760} servotypes;
+const servotypes servo_type = DS760;
+float pos = 0.;    // variable to store the servo position
+int slewdegrees = 60;
+int delaymicros = 2200 + 2100/slewdegrees;
+float scalefactor = 1.0;  // Compensates for servos whose full travel is not 180 degrees
+
 
 const int A_BUTTON         = 0;
 const int B_BUTTON         = 1;
@@ -62,7 +69,12 @@ int nesLatch      = 3;    // The latch pin for the NES controller
 
 
 void setup() {
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+  if (servo_type == DS760) {
+    myservo.attach(9,400,1100);  // attaches the servo on pin 9 to the servo object -- MKS DS760 servo timings
+    scalefactor = 180.0/120.0;  // DS760 only goes 120 degrees
+  } else {
+    myservo.attach(9);  // attaches the servo on pin 9 to the servo object -- Standard servo
+  }
   
 lcd.begin(16, 2);
 lcd.setBacklight(HIGH);
@@ -76,9 +88,6 @@ lcd.print("Saccade degrees:");
   digitalWrite(nesClock, LOW);
   digitalWrite(nesLatch, LOW);
 }
-
-int slewdegrees = 20;
-int delaymicros = 2200 + 21000/slewdegrees;
 
 void loop() {
   nesRegister = readNesController();
@@ -163,13 +172,13 @@ byte readNesController()
 }
 
 void moveServo(int) {
-    for(pos = 0; pos < slewdegrees; pos += 1) { // 1 degree steps
-    myservo.write(90+pos);              // tell servo to go to position in variable 'pos'
+    for(pos = 0; pos < slewdegrees*scalefactor; pos += 1*scalefactor) { // 1 degree steps
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delayMicroseconds(delaymicros);                       // wait for the servo to reach the position
   }
   delay(1000); // wait a second
-  for(pos = slewdegrees; pos > 0; pos -= 1) { // 1 degree steps
-    myservo.write(90+pos);              // tell servo to go to position in variable 'pos'
+  for(pos = slewdegrees*scalefactor; pos > 0; pos -= 1*scalefactor) { // 1 degree steps
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delayMicroseconds(delaymicros);                       // wait for the servo to reach the position
   }
   //delay(1000); // wait a second
