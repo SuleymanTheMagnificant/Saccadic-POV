@@ -29,7 +29,8 @@ int display_duration = 4000;
 unsigned long time_to_stop = millis()+display_duration;
 
 unsigned int CurrentImage = 0;
-const unsigned int *imagelib[3] = {mario,zero,cross};
+#define NUM_IMAGES 3
+const unsigned int *imagelib[NUM_IMAGES] = {mario,zero,cross};
 
 /* Put variables to be controlled by PsychoPy via Serial.read() here
 CurrentImage  --> what image is being presented
@@ -44,36 +45,40 @@ CRGB leds[NUM_LEDS];
  
 // Persistent serial variables
 byte lastmsg; // Last command verb received
-int expect; // How many more bytes to expect for lastmsg
+int expect; // Should we expect a numerical argument to follow?
 bool showing; // Is image currently being displayed?
 
 void serial_handler() {
   // put your main code here, to run repeatedly:
   byte msg = 0;   // Serial message verb id
-  if (msg = Serial.read()) {
-    if (expect) {
-      expect--;
-      switch (lastmsg) {
-        case POV_BRIGHTNESS:
-          CurrentBrightness = (msg-'0')*255/9;
-          Serial.println(CurrentBrightness);
-          FastLED.setBrightness(CurrentBrightness);
-          lastmsg = POV_NO_MSG;
-          break;
-        case POV_PICK:
-          CurrentImage = msg-'0';
-          Serial.println(CurrentImage);
-          lastmsg = POV_NO_MSG;
-          break;
-        case POV_TIME:
-          display_duration = (msg-'0')*1000;
-          Serial.println(display_duration);
-          lastmsg = POV_NO_MSG;
-          break;
-        default:
-          break;
-      }
+  if (expect) {
+    expect--;
+    switch (lastmsg) {
+      case POV_BRIGHTNESS:
+        CurrentBrightness = Serial.parseInt();
+        if (CurrentBrightness >= 255)
+          CurrentBrightness = 255;
+        Serial.println(CurrentBrightness);
+        FastLED.setBrightness(CurrentBrightness);
+        lastmsg = POV_NO_MSG;
+        break;
+      case POV_PICK:
+        CurrentImage = Serial.parseInt();
+        if (CurrentImage >= NUM_IMAGES)
+          CurrentImage = NUM_IMAGES-1;
+        Serial.println(CurrentImage);
+        lastmsg = POV_NO_MSG;
+        break;
+      case POV_TIME:
+        display_duration = Serial.parseInt();
+        Serial.println(display_duration);
+        lastmsg = POV_NO_MSG;
+        break;
+      default:
+        break;
     }
+  }
+  if (msg = Serial.read()) {
     switch (msg) {
       case POV_SHOW:
         Serial.println("Displaying picture.");
@@ -113,6 +118,7 @@ void serial_handler() {
 
 void setup() {
   Serial.begin(9600);
+  Serial.setTimeout(4000);
   pinMode(7, OUTPUT);
   digitalWrite(7, HIGH);  // enable access to LEDs on Prop Shield
   FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);// http://fastled.io/docs/3.1/group___color_enums.html
@@ -150,11 +156,10 @@ void loop() {
     BlankImage();
   }
    if (cycle && (millis() > time_to_stop)) {
-    if (CurrentImage > 1)
+    CurrentImage++;
+    time_to_stop = millis() +display_duration;
+    if (CurrentImage >= NUM_IMAGES)
       CurrentImage = 0;
-    else
-      CurrentImage++;
-      time_to_stop = millis() +display_duration;
   }
   if (showing || cycle) {
     PresentImage(imagelib[CurrentImage]); //show image once
