@@ -21,8 +21,15 @@ Documentation for FastLed is here: https://github.com/FastLED/FastLED/wiki
 #define POV_OFF 'o'
 #define POV_SHOW 's'
 #define POV_TIME 't'
+#define POV_NIMAGES 'n'
+#define POV_SEQUENCE 'q'
 
-bool cycle = true;
+#define MAX_SEQUENCE 100
+
+enum showStates {SHOW_OFF, SHOW_ON, SHOW_CYCLE, SHOW_SEQUENCE};
+
+enum showStates state = SHOW_CYCLE;
+
 int numberOfSlices = 32;
 uint8_t CurrentBrightness = 255; //scaling function
 int display_duration = 4000;
@@ -31,6 +38,13 @@ unsigned long time_to_stop = millis()+display_duration;
 unsigned int CurrentImage = 0;
 #define NUM_IMAGES 3
 const unsigned int *imagelib[NUM_IMAGES] = {mario,zero,cross};
+
+// Sequencing variables
+char sequencetext[4*MAX_SEQUENCE];
+int sequence[MAX_SEQUENCE];
+int sequence_pointer = 0;
+int sequence_length = 0;
+char *pch; // Pointer to tokens
 
 /* Put variables to be controlled by PsychoPy via Serial.read() here
 CurrentImage  --> what image is being presented
@@ -46,7 +60,6 @@ CRGB leds[NUM_LEDS];
 // Persistent serial variables
 byte lastmsg; // Last command verb received
 int expect; // Should we expect a numerical argument to follow?
-bool showing; // Is image currently being displayed?
 
 void serial_handler() {
   // put your main code here, to run repeatedly:
@@ -74,6 +87,22 @@ void serial_handler() {
         Serial.println(display_duration);
         lastmsg = POV_NO_MSG;
         break;
+      case POV_SEQUENCE:
+        sequence_pointer = 0;
+        while (Serial.available() > 1) {
+          sequence[sequence_pointer++] = Serial.parseInt();
+        }
+        sequence_length = sequence_pointer;
+        sequence_pointer = 0;
+        for (sequence_pointer = 0; sequence_pointer < sequence_length; sequence_pointer++) {
+          Serial.print(sequence[sequence_pointer]);
+          Serial.print(",");
+        }
+        Serial.println("...");
+        sequence_pointer = 0;
+        lastmsg = POV_NO_MSG;
+        state = SHOW_SEQUENCE;
+        break;
       default:
         break;
     }
@@ -82,8 +111,7 @@ void serial_handler() {
     switch (msg) {
       case POV_SHOW:
         Serial.println("Displaying picture.");
-        showing = true;
-        cycle = false;
+        state = SHOW_ON;
         time_to_stop = millis() + display_duration;
         break;
       case POV_BRIGHTNESS:
@@ -92,8 +120,7 @@ void serial_handler() {
         break;
       case POV_OFF:
         Serial.println("Turning display off.");
-        showing = false;
-        cycle = false;
+        state = SHOW_OFF;
         BlankImage();
         break;
       case POV_PICK: 
@@ -102,12 +129,19 @@ void serial_handler() {
         break;
       case POV_CYCLE:
         Serial.println("Cycling through all images.");
-        cycle = true;
-        showing = false;
+        state = SHOW_CYCLE;
+        break;
+      case POV_SEQUENCE:
+        Serial.print("Showing image sequence  ");
+        time_to_stop = millis() + display_duration;
+        expect = 1;
         break;
       case POV_TIME: 
         Serial.print("Setting display time to ");
         expect = 1;
+        break;
+      case POV_NIMAGES:
+        Serial.println(NUM_IMAGES);
         break;
       default:
         break;
@@ -118,7 +152,7 @@ void serial_handler() {
 
 void setup() {
   Serial.begin(9600);
-  Serial.setTimeout(4000);
+  Serial.setTimeout(400);
   pinMode(7, OUTPUT);
   digitalWrite(7, HIGH);  // enable access to LEDs on Prop Shield
   FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);// http://fastled.io/docs/3.1/group___color_enums.html
@@ -150,18 +184,30 @@ void PresentImage(const unsigned int array[]){
 
 void loop() {
   serial_handler();
-  if (showing && (millis() > time_to_stop)) {
+  if ((state == SHOW_ON) && (millis() > time_to_stop)) {
     Serial.println("Turning off picture.");
-    showing = false;
+    state = SHOW_OFF;
     BlankImage();
   }
-   if (cycle && (millis() > time_to_stop)) {
+   if ((state == SHOW_CYCLE) && (millis() > time_to_stop)) {
     CurrentImage++;
     time_to_stop = millis() +display_duration;
     if (CurrentImage >= NUM_IMAGES)
       CurrentImage = 0;
   }
-  if (showing || cycle) {
+  if (state == SHOW_SEQUENCE) {
+    if (millis() > time_to_stop) {
+      Serial.println("Turning off picture.");
+      state = SHOW_OFF;
+      BlankImage();
+    } else {
+      if (sequence_pointer >= sequence_length) {
+        sequence_pointer = 0;
+      }
+      CurrentImage = sequence[sequence_pointer++];   
+    }
+  }
+  if (state != SHOW_OFF) {
     PresentImage(imagelib[CurrentImage]); //show image once
   }
 }
