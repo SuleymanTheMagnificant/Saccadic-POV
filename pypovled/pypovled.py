@@ -5,8 +5,9 @@ Functions:
   ready(): Returns true if comms established.
   brightness(VAL): Set display brightness 0-255
   cycle(): Rotate through all available images
-  pick(VAL): Select image to show
   show(): Show image
+  sequence(LIST): Rapidly show images in LIST (of ints)
+  pick(VAL): Select image to show
   off(): Stop showing image
   time(VAL): Set display time (seconds)
 
