@@ -9,8 +9,10 @@ Documentation for FastLed is here: https://github.com/FastLED/FastLED/wiki
 #include "FastLED.h"
 
 #define NUM_LEDS 32 //number of leds in strip 
-#define DATA_PIN 11// spi data 
-#define CLOCK_PIN 13//spi clock
+#define DATA_PIN 26// spi data 
+#define CLOCK_PIN 27//spi clock
+//#define DATA_PIN 11// spi data 
+//#define CLOCK_PIN 13//spi clock
 #define COLOR_ORDER BGR //otherwise B&R get swapped
 
 // Serial command verbs
