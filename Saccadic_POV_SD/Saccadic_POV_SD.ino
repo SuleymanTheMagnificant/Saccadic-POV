@@ -34,7 +34,7 @@ Documentation for FastLed is here: https://github.com/FastLED/FastLED/wiki
 
 uint32_t interval=1000000/LINES_PER_SEC; //interval between lines of image, in microseconds
 
-#define IMAGE "Mario.bmp"
+#define IMAGE "image.bmp"
 
 
 /* Global Variables */
