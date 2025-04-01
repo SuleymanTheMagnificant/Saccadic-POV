@@ -34,12 +34,13 @@ Documentation for FastLed is here: https://github.com/FastLED/FastLED/wiki
 
 uint32_t interval=1000000/LINES_PER_SEC; //interval between lines of image, in microseconds
 
-#define IMAGE "image.bmp"
+#define IMAGELIST "imagelist.txt"
 
 
 /* Global Variables */
 CRGB leds[NUM_PIXELS];
 POV staff(NUM_PIXELS, leds);
+uint32_t nextImageChange=0; //in milliseconds
 
 
 
@@ -58,11 +59,23 @@ void setup(){
   // You can use any of predefined CRGB colors: https://github.com/FastLED/FastLED/wiki/Pixel-reference#predefined-colors-list
   // You can also omit the color; in this case, it will default to red.
   staff.blink(CRGB::Red);
-  staff.addImage(IMAGE);
-
+//  staff.addImage(IMAGE);
+  staff.addImageList(IMAGELIST);
+  nextImageChange=millis()+staff.currentDuration()*1000;
 }
 
 void loop(){
+      char fname[MAX_FILENAME];
+
+      if (millis()>nextImageChange){
+        //time to switch to next image
+        staff.nextImage();
+        Serial.print("Showing image ");
+        staff.currentImage()->getFilename(fname);
+        Serial.println(fname);
+        //determine when we will need to change the image
+        nextImageChange=millis()+staff.currentDuration()*1000;
+    }
     if (staff.timeSinceUpdate()>interval) {
         staff.showNextLine();
     }
