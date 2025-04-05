@@ -1,0 +1,3 @@
+circle.bmp	2
+cross.bmp	2
+Mario.bmp	2
