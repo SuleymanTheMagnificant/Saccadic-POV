@@ -156,7 +156,6 @@ uint32_t BMPimage::pixelColor(uint16_t x, uint16_t  y){
  *  BMP image class
  *******************************************************/
 
-
 BMPimage * BMPimageList::current(){
     if (_numImages==0) { return NULL; }
     return (&images[_currentIndex]);
@@ -165,16 +164,29 @@ uint16_t BMPimageList::currentDuration(){
     if (_numImages==0) { return 0; }
     return (durations[_currentIndex]);
 }
-BMPimage * BMPimageList::next(){
+
+void BMPimageList::setDuration(uint16_t duration) {
+        durations[_currentIndex] = duration;
+}
+
+BMPimage * BMPimageList::select(int selection){
     if (_numImages==0) { return NULL; }
-    _currentIndex++;
-    if (_currentIndex==_numImages) {_currentIndex=0;}
+    _currentIndex = selection;
+    if (_currentIndex>=_numImages) {_currentIndex=0;}
+    if (_currentIndex<0) {_currentIndex=_numImages-1;}
     return (&images[_currentIndex]);
 }
+
+BMPimage * BMPimageList::next(){
+    return this->select(_currentIndex+1);
+}
+
+BMPimage * BMPimageList::prev(){
+    return this->select(_currentIndex-1);
+}
+
 BMPimage * BMPimageList::first(){
-    if (_numImages==0) { return NULL; }
-    _currentIndex=0;
-    return (&images[_currentIndex]);
+    return this->select(0);
 }
 
 BMPimage * BMPimageList::addImage(char * filename, uint16_t duration){
@@ -251,6 +263,12 @@ void BMPimageList::print(){
     Serial.print("Image list: total # of files: ");
     Serial.println(_numImages);
     for (int i=0; i<_numImages; i++){
+        if (i==_currentIndex) {
+            Serial.print("--> ");
+        } else {
+            Serial.print("    ");
+        }
+        Serial.print(i);Serial.print(" ");
         Serial.print(images[i].filename); Serial.print(": ");
         Serial.print(images[i]._width); Serial.print("x"); Serial.print(images[i]._height);
         Serial.print(";  duration: "); Serial.println(durations[i]);

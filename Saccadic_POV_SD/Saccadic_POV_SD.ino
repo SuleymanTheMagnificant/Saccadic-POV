@@ -44,18 +44,176 @@ POV staff(NUM_PIXELS, leds);
 uint32_t nextImageChange=0; //in milliseconds
 
 
+// ======================================================================
+// ========================  Serial Handling ============================
+// ======================================================================
+
+// Serial command verbs
+#define POV_NO_MSG 0
+#define POV_BRIGHTNESS 'b'
+#define POV_CYCLE 'c'
+#define POV_PICK 'p'
+#define POV_NEXT '+'
+#define POV_PREV '-'
+#define POV_OFF 'o'
+#define POV_SHOW 's'
+#define POV_TIME 't'
+#define POV_PRINT_SEQUENCE 'q'
+#define POV_READ_SEQUENCE 'r'
+#define POV_CLEAR_SEQUENCE 'x'
+#define POV_LIST_FILES 'l'
+#define POV_ADDFILE 'a'
+#define POV_HELP '?'
+
+enum showStates {SHOW_OFF, SHOW_ONCE, SHOW_CYCLE};
+
+enum showStates state = SHOW_CYCLE;
+
+// Persistent serial variables
+byte lastmsg; // Last command verb received
+int expect; // Should we expect a numerical argument to follow?
+
+void serial_handler() {
+  int brightness, pick, dur;
+  String filestr;
+  char fname[MAX_FILENAME];
+
+  byte msg = 0;   // Serial message verb id
+  if (expect) {
+    expect--;
+    switch (lastmsg) {
+      case POV_BRIGHTNESS:
+        brightness = Serial.parseInt();
+        if (brightness >= 255)
+          brightness = 255;
+        Serial.println(brightness);
+        FastLED.setBrightness(brightness);
+        lastmsg = POV_NO_MSG;
+        break;
+      case POV_PICK:
+        pick = Serial.parseInt();
+        staff.selectImage(pick);
+        Serial.print(pick); Serial.print(": ");
+        staff.imageList.current()->getFilename(fname);
+        Serial.println(fname);
+        lastmsg = POV_NO_MSG;
+        break;
+      case POV_TIME:
+        dur = Serial.parseInt();
+        Serial.println(dur);
+        staff.imageList.setDuration(dur);
+        lastmsg = POV_NO_MSG;
+        break;
+      case POV_ADDFILE:
+        filestr = Serial.readString(MAX_FILENAME).trim();
+        Serial.println(filestr);
+        filestr.toCharArray(fname,MAX_FILENAME);
+        staff.addImage(fname,2);
+        lastmsg = POV_NO_MSG;
+        break;
+      case POV_READ_SEQUENCE:
+        filestr = Serial.readString(MAX_FILENAME).trim();
+        Serial.println(filestr);
+        filestr.toCharArray(fname,MAX_FILENAME);
+        staff.addImageList(fname);
+        lastmsg = POV_NO_MSG;
+        break;
+
+      default:
+        break;
+    }
+  }
+  if (Serial.available()) {
+    msg = Serial.read();
+    switch (msg) {
+      case POV_SHOW:
+        Serial.print("Displaying image ");
+        staff.imageList.current()->getFilename(fname);
+        Serial.println(fname);
+        state = SHOW_ONCE;
+        nextImageChange=millis()+staff.imageList.currentDuration()*1000;
+        break;
+      case POV_BRIGHTNESS:
+        Serial.print("Setting brightness to ");
+        expect = 1;
+        break;
+      case POV_OFF:
+        Serial.println("Turning display off.");
+        state = SHOW_OFF;
+        staff.blank();
+        break;
+      case POV_PICK: 
+        Serial.print("Selecting image ");
+        expect = 1;
+        break;
+      case POV_NEXT: 
+        Serial.print("Selecting image ");
+        staff.nextImage();
+        staff.imageList.current()->getFilename(fname);
+        Serial.println(fname);
+        break;
+      case POV_PREV: 
+        Serial.print("Selecting image ");
+        staff.nextImage();
+        staff.imageList.current()->getFilename(fname);
+        Serial.println(fname);
+        break;
+      case POV_CYCLE:
+        Serial.println("Cycling through all images.");
+        state = SHOW_CYCLE;
+        nextImageChange=millis()+staff.imageList.currentDuration()*1000;
+        break;
+      case POV_TIME: 
+        Serial.print("Setting display duration to ");
+        expect = 1;
+        break;
+      case POV_PRINT_SEQUENCE:
+        Serial.println("Current image sequence:");
+        staff.imageList.print();
+        break;
+      case POV_CLEAR_SEQUENCE:
+        Serial.println("Erasing image sequence!");
+        staff.imageList.reset();
+        break;
+      case POV_READ_SEQUENCE:
+        Serial.println("Reading image sequence from ");
+        expect=1;
+        break;
+      case POV_LIST_FILES:
+        Serial.println("Files on SD card:");
+        SD.sdfs.ls();
+        break;
+      case POV_ADDFILE:
+        Serial.print("Adding image to sequence: ");
+        expect=1;
+        break;
+      case POV_HELP:
+        Serial.println(F("Available commands:"));
+        Serial.print(POV_CYCLE);Serial.println(F(": Cycle through image list"));
+        Serial.print(POV_BRIGHTNESS);Serial.println(F(" <n>: Set brightness to <n>"));
+        Serial.print(POV_PICK);Serial.println(F(" <n>: Select image <n> from list"));
+        Serial.print(POV_NEXT);Serial.println(F(": Select next image from list"));
+        Serial.print(POV_PREV);Serial.println(F(": Select previous image from list"));
+        Serial.print(POV_OFF);Serial.println(F(": Turn off display"));
+        Serial.print(POV_SHOW);Serial.println(F(": Show selected image once"));
+        Serial.print(POV_TIME);Serial.println(F(" <n>: Set duration of selected image to <n> seconds"));
+        Serial.print(POV_PRINT_SEQUENCE);Serial.println(F(": Show list of images to be shown"));
+        Serial.print(POV_CLEAR_SEQUENCE);Serial.println(F(": Clear list images to be shown"));
+        Serial.print(POV_READ_SEQUENCE);Serial.println(F(" <file>: Read list of images from <file>"));
+        Serial.print(POV_ADDFILE);Serial.println(F(" <file>: Add <file> to list of images to be shown"));
+        Serial.print(POV_LIST_FILES);Serial.println(F(": List all available files on SD card"));
+        Serial.print(POV_HELP);Serial.println(F(": Display this help message"));
+      default:
+        break;
+    }
+    lastmsg = msg;
+  }
+}
 
 void setup(){
-// If using hardware SPI, use this version
-//    FastLED.addLeds<LED_TYPE, COLOR_ORDER>(leds, NUM_PIXELS);
-//If NOT using hardware SPI, comment the previous line. Instead,
-// use one of the versions below,
-// replacing DATA_PIN and CLOCK_PIN by correct pin numbers
   FastLED.addLeds<DOTSTAR, DATA_PIN, CLOCK_PIN, COLOR_ORDER>(leds, NUM_PIXELS);
-// FastLED.addLeds<NEOPIXEL, DATA_PIN, COLOR_ORDER>(leds, NUM_PIXELS);
 
-  //otherwise, regular show
-  staff.begin(MODE_SHOW);
+  staff.begin();
   // blink to indicate that staff is alive and working.
   // You can use any of predefined CRGB colors: https://github.com/FastLED/FastLED/wiki/Pixel-reference#predefined-colors-list
   // You can also omit the color; in this case, it will default to red.
@@ -63,22 +221,31 @@ void setup(){
 //  staff.addImage(IMAGE);
 // staff.addImageList(IMAGELIST);
   staff.addImageList(imagelist);
-  nextImageChange=millis()+staff.currentDuration()*1000;
+  nextImageChange=millis()+staff.imageList.currentDuration()*1000;
 }
 
 void loop(){
-      char fname[MAX_FILENAME];
 
-      if (millis()>nextImageChange){
-        //time to switch to next image
+  char fname[MAX_FILENAME];
+
+  serial_handler();
+
+  if (state!=SHOW_OFF) {
+    if (millis()>nextImageChange){
+      if (state==SHOW_CYCLE) {
         staff.nextImage();
         Serial.print("Showing image ");
-        staff.currentImage()->getFilename(fname);
+        staff.imageList.current()->getFilename(fname);
         Serial.println(fname);
         //determine when we will need to change the image
-        nextImageChange=millis()+staff.currentDuration()*1000;
+        nextImageChange=millis()+staff.imageList.currentDuration()*1000;
+      } else {  // state was SHOW_ONCE, stop showing
+        staff.blank();
+        state=SHOW_OFF;
+      }
     }
-    if (staff.timeSinceUpdate()>interval) {
+    if ((staff.timeSinceUpdate()>interval) && (state != SHOW_OFF)) {
         staff.showNextLine();
     }
+  } 
 }

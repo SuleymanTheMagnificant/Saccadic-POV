@@ -13,11 +13,5 @@
 #define MAX_FILES 50
 #define MAX_FILENAME 31
 
-// constants for staff mode
-#define MODE_SHOW 0
-#define MODE_DEBUG 1
-#define MODE_UPLOAD 2
-
-
 
 #endif

@@ -5,12 +5,9 @@ POV::POV(uint16_t n, CRGB * l)
         leds=l;
     }
 
-void POV::begin(uint8_t mode){
+void POV::begin(){
     bool ok;
     Serial.begin(9600);
-
-    //Serial.println("Starting...")
-    _mode=mode;
 
     ok = SD.begin(BUILTIN_SDCARD);
 
@@ -125,6 +122,13 @@ void POV::clearImageList(){
     currentLine=0;
 }
 
+void POV::selectImage(int selection){
+    imageList.current()->unload();
+    imageList.select(selection);
+    imageList.current()->load();
+    currentLine=0;
+}
+
 void POV::firstImage(){
     imageList.current()->unload();
     imageList.first();
@@ -136,6 +140,14 @@ void POV::nextImage(){
     if (paused) return;
     imageList.current()->unload();
     imageList.next();
+    imageList.current()->load();
+    currentLine=0;
+}
+
+void POV::prevImage(){
+    if (paused) return;
+    imageList.current()->unload();
+    imageList.prev();
     imageList.current()->load();
     currentLine=0;
 }

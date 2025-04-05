@@ -56,11 +56,21 @@ class BMPimageList {
         BMPimage * current();
         /* duration for current image, in seconds */
         uint16_t currentDuration();
-        /* moves pointer to next image in the list and returns the pointer.
+        /* Sets the duration to show the currently-selected image, in milliseconds.*/
+        void setDuration(uint16_t duration);
+        /* moves pointer to the selected image and returns the pointer.
            If list is empty, returns NULL
            If we are at last image, goes back to  the first one
         */
+        
+        BMPimage * select(int selection);
+
+        /* moves pointer to next image in the list and returns the pointer.
+        */
         BMPimage * next();
+        /* moves pointer to previous image in the list and returns the pointer.
+        */
+        BMPimage * prev();
         /* sets pointer to the first image in list and returns it.
            If list is empty, returns NULL */
         BMPimage * first();

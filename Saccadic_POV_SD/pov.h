@@ -14,10 +14,8 @@ class POV {
         bool paused;
 
         POV(uint16_t length, CRGB * l);
-        void begin(uint8_t mode);
+        void begin();
 
-
-        uint8_t mode() {return _mode;}
 
         void setPixel(uint16_t i, uint32_t c);
         void blank();
@@ -39,12 +37,17 @@ class POV {
         /* Reads from file an image and adds it to  the list, making it current
           image */
         void addImage(char * filename, uint16_t duration=0);
+
         /*
          reads list of images from file and adds it to the staff  imageList
          */
         uint8_t addImageList(char * filename);
         //remove all images from imagelist
         void clearImageList();
+        
+        // Select a new image to be current
+        void selectImage(int selection);
+
         //make first image of image list current
         void firstImage();
 
@@ -52,6 +55,7 @@ class POV {
          continues from first image
         */
         void nextImage();
+        void prevImage();
 
         void restartImage(){currentLine = 0; lastLineUpdate=micros();}
         /* Show next line of active image
@@ -64,18 +68,12 @@ class POV {
         //time since strip was last updated, in micro sec
         uint32_t timeSinceUpdate() {return (micros()-lastLineUpdate);}
 
-
-        BMPimage * currentImage() {return imageList.current();}
-
-        uint16_t currentDuration() {return imageList.currentDuration();}
-
+        BMPimageList  imageList;
 
     private:
         uint16_t numPixels;
-        BMPimageList  imageList;
         int16_t currentLine=0;     //next line to be shown
         uint32_t lastLineUpdate=0; //time in microseconds
-        uint8_t _mode = MODE_SHOW;
 
 };
 
