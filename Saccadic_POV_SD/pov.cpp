@@ -12,8 +12,7 @@ void POV::begin(uint8_t mode){
     //Serial.println("Starting...")
     _mode=mode;
 
-    // Very slow SPI frequency.  May be useful for hardware with slow buffers.
-    ok = SD.sdfs.begin(SdSpiConfig(chipSelect, SHARED_SPI, SD_SCK_MHZ(4)));
+    ok = SD.begin(BUILTIN_SDCARD);
 
     if (!ok) {
       Serial.println("initialization failed!");

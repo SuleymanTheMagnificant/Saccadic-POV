@@ -3,7 +3,7 @@
 reading BMP files from an attached SD card and displaying them.
 Serial input is used to control the images shown.
 
-Uses Teensy 4.0.
+Uses Teensy 4.1.
 
 Uses code from POV library by Alexander Kirillov <shurik179@gmail.com>
  * See github.com/shurik179/pov-library for details
@@ -34,7 +34,8 @@ Documentation for FastLed is here: https://github.com/FastLED/FastLED/wiki
 
 uint32_t interval=1000000/LINES_PER_SEC; //interval between lines of image, in microseconds
 
-#define IMAGELIST "imagelist.txt"
+static char imagelist[] = "imagelist.txt";
+//#define IMAGELIST "imagelist.txt"
 
 
 /* Global Variables */
@@ -60,7 +61,8 @@ void setup(){
   // You can also omit the color; in this case, it will default to red.
   staff.blink(CRGB::Red);
 //  staff.addImage(IMAGE);
-  staff.addImageList(IMAGELIST);
+// staff.addImageList(IMAGELIST);
+  staff.addImageList(imagelist);
   nextImageChange=millis()+staff.currentDuration()*1000;
 }
 

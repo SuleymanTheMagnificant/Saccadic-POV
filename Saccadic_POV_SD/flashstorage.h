@@ -13,7 +13,8 @@ uint32_t read32(File &f);
 //skips all whitespace (including CR and tab)
 int readLine(File &f, char  l[]);
 
-const int chipSelect = 10;
+//const int chipSelect = 10;
+const int chipSelect = BUILTIN_SDCARD;
 
 //Global variables
 
