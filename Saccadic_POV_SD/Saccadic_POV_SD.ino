@@ -51,6 +51,7 @@ uint32_t nextImageChange=0; //in milliseconds
 // Serial command verbs
 #define POV_NO_MSG 0
 #define POV_BRIGHTNESS 'b'
+#define POV_SET_SPEED 'v'
 #define POV_CYCLE 'c'
 #define POV_PICK 'p'
 #define POV_NEXT '+'
@@ -74,7 +75,7 @@ byte lastmsg; // Last command verb received
 int expect; // Should we expect a numerical argument to follow?
 
 void serial_handler() {
-  int brightness, pick, dur;
+  int brightness, speed, pick, dur;
   String filestr;
   char fname[MAX_FILENAME];
 
@@ -88,6 +89,12 @@ void serial_handler() {
           brightness = 255;
         Serial.println(brightness);
         FastLED.setBrightness(brightness);
+        lastmsg = POV_NO_MSG;
+        break;
+      case POV_SET_SPEED:
+        speed = Serial.parseInt();
+        Serial.println(speed);
+        interval=1000000/speed;
         lastmsg = POV_NO_MSG;
         break;
       case POV_PICK:
@@ -135,6 +142,10 @@ void serial_handler() {
         break;
       case POV_BRIGHTNESS:
         Serial.print("Setting brightness to ");
+        expect = 1;
+        break;
+      case POV_SET_SPEED:
+        Serial.print("Setting display speed to ");
         expect = 1;
         break;
       case POV_OFF:
@@ -191,6 +202,7 @@ void serial_handler() {
         Serial.println(F("Available commands:"));
         Serial.print(POV_CYCLE);Serial.println(F(": Cycle through image list"));
         Serial.print(POV_BRIGHTNESS);Serial.println(F(" <n>: Set brightness to <n>"));
+        Serial.print(POV_SET_SPEED);Serial.println(F(" <n>: Set display speed (lines/sec) to <n>"));
         Serial.print(POV_PICK);Serial.println(F(" <n>: Select image <n> from list"));
         Serial.print(POV_NEXT);Serial.println(F(": Select next image from list"));
         Serial.print(POV_PREV);Serial.println(F(": Select previous image from list"));
