@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2026.1.2),
-    on April 16, 2026, at 05:51
+    on April 16, 2026, at 06:07
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -556,8 +556,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             text_instr_1.tStart = t  # local t and not account for scr refresh
             text_instr_1.tStartRefresh = tThisFlipGlobal  # on global time
             win.timeOnFlip(text_instr_1, 'tStartRefresh')  # time at next scr refresh
-            # add timestamp to datafile
-            thisExp.timestampOnFlip(win, 'text_instr_1.started')
             # update status
             text_instr_1.status = STARTED
             text_instr_1.setAutoDraw(True)
@@ -600,8 +598,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             text_example.tStart = t  # local t and not account for scr refresh
             text_example.tStartRefresh = tThisFlipGlobal  # on global time
             win.timeOnFlip(text_example, 'tStartRefresh')  # time at next scr refresh
-            # add timestamp to datafile
-            thisExp.timestampOnFlip(win, 'text_example.started')
             # update status
             text_example.status = STARTED
             text_example.setAutoDraw(True)
@@ -620,8 +616,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             text_instr_3.tStart = t  # local t and not account for scr refresh
             text_instr_3.tStartRefresh = tThisFlipGlobal  # on global time
             win.timeOnFlip(text_instr_3, 'tStartRefresh')  # time at next scr refresh
-            # add timestamp to datafile
-            thisExp.timestampOnFlip(win, 'text_instr_3.started')
             # update status
             text_instr_3.status = STARTED
             text_instr_3.setAutoDraw(True)
@@ -640,8 +634,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             continue_instr_1.tStart = t  # local t and not account for scr refresh
             continue_instr_1.tStartRefresh = tThisFlipGlobal  # on global time
             win.timeOnFlip(continue_instr_1, 'tStartRefresh')  # time at next scr refresh
-            # add timestamp to datafile
-            thisExp.timestampOnFlip(win, 'continue_instr_1.started')
             # update status
             continue_instr_1.status = STARTED
             continue_instr_1.setAutoDraw(True)
@@ -824,8 +816,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 continue_instr_2.tStart = t  # local t and not account for scr refresh
                 continue_instr_2.tStartRefresh = tThisFlipGlobal  # on global time
                 win.timeOnFlip(continue_instr_2, 'tStartRefresh')  # time at next scr refresh
-                # add timestamp to datafile
-                thisExp.timestampOnFlip(win, 'continue_instr_2.started')
                 # update status
                 continue_instr_2.status = STARTED
                 continue_instr_2.setAutoDraw(True)
@@ -969,8 +959,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     text.tStart = t  # local t and not account for scr refresh
                     text.tStartRefresh = tThisFlipGlobal  # on global time
                     win.timeOnFlip(text, 'tStartRefresh')  # time at next scr refresh
-                    # add timestamp to datafile
-                    thisExp.timestampOnFlip(win, 'text.started')
                     # update status
                     text.status = STARTED
                     text.setAutoDraw(True)
@@ -988,8 +976,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         text.tStop = t  # not accounting for scr refresh
                         text.tStopRefresh = tThisFlipGlobal  # on global time
                         text.frameNStop = frameN  # exact frame index
-                        # add timestamp to datafile
-                        thisExp.timestampOnFlip(win, 'text.stopped')
                         # update status
                         text.status = FINISHED
                         text.setAutoDraw(False)
@@ -1235,7 +1221,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             continueRoutine = True
             # update component parameters for each repeat
             text_trial_getresponse.setColor('white', colorSpace='rgb')
-            text_trial_getresponse.setText("Type the "+("SMALL" if forest_trees=="forest" else "LARGE")+" letter you saw.")
+            text_trial_getresponse.setText("Type the "+("SMALL" if forest_trees=="trees" else "LARGE")+" letter you saw.")
             # create starting attributes for key_resp_whatletter
             key_resp_whatletter.keys = []
             key_resp_whatletter.rt = []
@@ -1462,8 +1448,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             text_instr.tStart = t  # local t and not account for scr refresh
             text_instr.tStartRefresh = tThisFlipGlobal  # on global time
             win.timeOnFlip(text_instr, 'tStartRefresh')  # time at next scr refresh
-            # add timestamp to datafile
-            thisExp.timestampOnFlip(win, 'text_instr.started')
             # update status
             text_instr.status = STARTED
             text_instr.setAutoDraw(True)
@@ -1539,13 +1523,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     End.tStop = globalClock.getTime(format='float')
     End.tStopRefresh = tThisFlipGlobal
     thisExp.addData('End.stopped', End.tStop)
-    # check responses
-    if key_end.keys in ['', [], None]:  # No response was made
-        key_end.keys = None
-    thisExp.addData('key_end.keys',key_end.keys)
-    if key_end.keys != None:  # we had a response
-        thisExp.addData('key_end.rt', key_end.rt)
-        thisExp.addData('key_end.duration', key_end.duration)
     thisExp.nextEntry()
     # the Routine "End" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset()
