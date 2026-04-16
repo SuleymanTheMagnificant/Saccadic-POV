@@ -2,3 +2,5 @@ __pycache__/
 *.py[cod]
 *.so
 *.wpr
+data/
+~*
