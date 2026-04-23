@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2026.1.2),
-    on April 16, 2026, at 06:07
+    on April 23, 2026, at 03:09
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -264,6 +264,17 @@ def setupDevices(expInfo, thisExp, win):
         deviceManager.addDevice(
             deviceClass='keyboard', deviceName='defaultKeyboard', backend='ptb'
         )
+    # initialize 'pov'
+    deviceManager.addDevice(
+        deviceName='pov',
+        port='COM4',
+        baudrate=9600,
+        byteSize=8,
+        stopBits=1,
+        parity='N',
+        deviceClass='psychopy.hardware.serialdevice.SerialDevice',
+        pauseDuration=(None or 0.1) / 3,
+    )
     # return True if completed successfully
     return True
 
@@ -436,6 +447,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         languageStyle='LTR',
         depth=0.0);
     
+    # point serialPort_select to device named 'pov' and make sure it's open
+    serialPort_select = deviceManager.getDevice('pov')
+    serialPort_select.status = NOT_STARTED
+    if not serialPort_select.com.is_open:
+        serialPort_select.com.open()
+    
     # --- Initialize components for Routine "Trial" ---
     trial_inprogress = visual.TextStim(win=win, name='trial_inprogress',
         text='',
@@ -452,6 +469,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         languageStyle='LTR',
         depth=-1.0);
     key_input = keyboard.Keyboard(deviceName='defaultKeyboard')
+    
+    # point serialPort_show to device named 'pov' and make sure it's open
+    serialPort_show = deviceManager.getDevice('pov')
+    serialPort_show.status = NOT_STARTED
+    if not serialPort_show.com.is_open:
+        serialPort_show.com.open()
     
     # --- Initialize components for Routine "Get_Trial_Response" ---
     text_trial_getresponse = visual.TextStim(win=win, name='text_trial_getresponse',
@@ -908,7 +931,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # create an object to store info about Routine blank
             blank = data.Routine(
                 name='blank',
-                components=[text],
+                components=[text, serialPort_select],
             )
             blank.status = NOT_STARTED
             continueRoutine = True
@@ -980,6 +1003,35 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         text.status = FINISHED
                         text.setAutoDraw(False)
                 
+                # if serialPort_select is starting this frame...
+                if serialPort_select.status == NOT_STARTED and t >= 0.0-frameTolerance:
+                    # keep track of start time/frame for later
+                    serialPort_select.frameNStart = frameN  # exact frame index
+                    serialPort_select.tStart = t  # local t and not account for scr refresh
+                    serialPort_select.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(serialPort_select, 'tStartRefresh')  # time at next scr refresh
+                    # update status
+                    serialPort_select.status = STARTED
+                    serialPort_select.sendMessage("p"+str(image_number))
+                    trials.addData('serialPort_select.stopData', "p"+str(image_number))
+                    serialPort_select.status = STARTED
+                    trials.addData('serialPort_select.startResp', serialPort_select.getResponse())
+                
+                # if serialPort_select is stopping this frame...
+                if serialPort_select.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > serialPort_select.tStartRefresh + 1.0-frameTolerance:
+                        # keep track of stop time/frame for later
+                        serialPort_select.tStop = t  # not accounting for scr refresh
+                        serialPort_select.tStopRefresh = tThisFlipGlobal  # on global time
+                        serialPort_select.frameNStop = frameN  # exact frame index
+                        # update status
+                        serialPort_select.status = FINISHED
+                        serialPort_select.sendMessage('')
+                        trials.addData('serialPort_select.stopData', '')
+                        serialPort_select.status = FINISHED
+                        trials.addData('serialPort_select.stopResp', serialPort_select.getResponse())
+                
                 # check for quit (typically the Esc key)
                 if defaultKeyboard.getKeys(keyList=["escape"]):
                     thisExp.status = FINISHED
@@ -1033,7 +1085,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # create an object to store info about Routine Trial
             Trial = data.Routine(
                 name='Trial',
-                components=[trial_inprogress, trial_servostatus, key_input],
+                components=[trial_inprogress, trial_servostatus, key_input, serialPort_show],
             )
             Trial.status = NOT_STARTED
             continueRoutine = True
@@ -1158,6 +1210,20 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     trial_servostatus.setText('')
                 if 'return' in keys:
                     continueRoutine = False
+                
+                # if serialPort_show is starting this frame...
+                if serialPort_show.status == NOT_STARTED and t >= 0.0-frameTolerance:
+                    # keep track of start time/frame for later
+                    serialPort_show.frameNStart = frameN  # exact frame index
+                    serialPort_show.tStart = t  # local t and not account for scr refresh
+                    serialPort_show.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(serialPort_show, 'tStartRefresh')  # time at next scr refresh
+                    # update status
+                    serialPort_show.status = STARTED
+                    serialPort_show.sendMessage('s')
+                    trials.addData('serialPort_show.stopData', 's')
+                    serialPort_show.status = STARTED
+                    trials.addData('serialPort_show.startResp', serialPort_show.getResponse())
                 
                 # check for quit (typically the Esc key)
                 if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1526,6 +1592,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     thisExp.nextEntry()
     # the Routine "End" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset()
+    # close serialPort_select
+    if serialPort_select.com.is_open:
+        serialPort_select.com.close()
+    # close serialPort_show
+    if serialPort_show.com.is_open:
+        serialPort_show.com.close()
     
     # mark experiment as finished
     endExperiment(thisExp, win=win)

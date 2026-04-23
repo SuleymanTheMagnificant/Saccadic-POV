@@ -159,6 +159,32 @@
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="run_trial_code" valType="code" updates="None" name="name"/>
       </CodeComponent>
+      <SerialOutComponent name="serialPort_show" plugin="None">
+        <Param val="pov" valType="device" updates="None" name="deviceLabel"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="" valType="code" updates="None" name="durationEstim"/>
+        <Param val="True" valType="bool" updates="None" name="getResponse"/>
+        <Param val="serialPort_show" valType="code" updates="None" name="name"/>
+        <Param val="False" valType="bool" updates="None" name="saveStartStop"/>
+        <Param val="1110010" valType="code" updates="None" name="startDataBinary"/>
+        <Param val="\x72" valType="str" updates="None" name="startDataChar"/>
+        <Param val="b'r'" valType="code" updates="None" name="startDataCode"/>
+        <Param val="114" valType="code" updates="None" name="startDataNumeric"/>
+        <Param val="s" valType="str" updates="None" name="startDataStr"/>
+        <Param val="str" valType="str" updates="None" name="startDataType"/>
+        <Param val="" valType="code" updates="None" name="startEstim"/>
+        <Param val="time (s)" valType="str" updates="None" name="startType"/>
+        <Param val="0.0" valType="code" updates="None" name="startVal"/>
+        <Param val="1111000" valType="code" updates="None" name="stopDataBinary"/>
+        <Param val="\x78" valType="str" updates="None" name="stopDataChar"/>
+        <Param val="b'x'" valType="code" updates="None" name="stopDataCode"/>
+        <Param val="120" valType="code" updates="None" name="stopDataNumeric"/>
+        <Param val="o" valType="str" updates="None" name="stopDataStr"/>
+        <Param val="str" valType="str" updates="None" name="stopDataType"/>
+        <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
+        <Param val="" valType="code" updates="constant" name="stopVal"/>
+        <Param val="False" valType="bool" updates="None" name="syncScreenRefresh"/>
+      </SerialOutComponent>
     </Routine>
     <Routine name="End">
       <RoutineSettingsComponent name="End" plugin="None">
@@ -709,6 +735,32 @@
         <Param val="" valType="code" updates="None" name="validator"/>
         <Param val="" valType="num" updates="constant" name="wrapWidth"/>
       </TextComponent>
+      <SerialOutComponent name="serialPort_select" plugin="None">
+        <Param val="pov" valType="device" updates="None" name="deviceLabel"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="" valType="code" updates="None" name="durationEstim"/>
+        <Param val="True" valType="bool" updates="None" name="getResponse"/>
+        <Param val="serialPort_select" valType="code" updates="None" name="name"/>
+        <Param val="False" valType="bool" updates="None" name="saveStartStop"/>
+        <Param val="1110010" valType="code" updates="None" name="startDataBinary"/>
+        <Param val="\x72" valType="str" updates="None" name="startDataChar"/>
+        <Param val="b'r'" valType="code" updates="None" name="startDataCode"/>
+        <Param val="114" valType="code" updates="None" name="startDataNumeric"/>
+        <Param val="$&quot;p&quot;+str(image_number)" valType="str" updates="None" name="startDataStr"/>
+        <Param val="str" valType="str" updates="None" name="startDataType"/>
+        <Param val="" valType="code" updates="None" name="startEstim"/>
+        <Param val="time (s)" valType="str" updates="None" name="startType"/>
+        <Param val="0.0" valType="code" updates="None" name="startVal"/>
+        <Param val="1111000" valType="code" updates="None" name="stopDataBinary"/>
+        <Param val="\x78" valType="str" updates="None" name="stopDataChar"/>
+        <Param val="b'x'" valType="code" updates="None" name="stopDataCode"/>
+        <Param val="120" valType="code" updates="None" name="stopDataNumeric"/>
+        <Param val="" valType="str" updates="None" name="stopDataStr"/>
+        <Param val="str" valType="str" updates="None" name="stopDataType"/>
+        <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
+        <Param val="1.0" valType="code" updates="constant" name="stopVal"/>
+        <Param val="False" valType="bool" updates="None" name="syncScreenRefresh"/>
+      </SerialOutComponent>
     </Routine>
   </Routines>
   <Flow>
@@ -727,7 +779,7 @@
     <Routine name="Display_Experiment_Type"/>
     <LoopInitiator loopType="TrialHandler" name="trials">
       <Param name="Selected rows" updates="None" val="" valType="str"/>
-      <Param name="conditions" updates="None" val="[{'image_number': 0, 'forest_letter': 'T', 'tree_letter': 'T'}, {'image_number': 1, 'forest_letter': 'L', 'tree_letter': 'T'}, {'image_number': 2, 'forest_letter': 'X', 'tree_letter': 'T'}, {'image_number': 3, 'forest_letter': 'H', 'tree_letter': 'T'}, {'image_number': 4, 'forest_letter': 'T', 'tree_letter': 'L'}, {'image_number': 5, 'forest_letter': 'L', 'tree_letter': 'L'}, {'image_number': 6, 'forest_letter': 'X', 'tree_letter': 'L'}, {'image_number': 7, 'forest_letter': 'H', 'tree_letter': 'L'}, {'image_number': 8, 'forest_letter': 'T', 'tree_letter': 'K'}, {'image_number': 9, 'forest_letter': 'L', 'tree_letter': 'K'}, {'image_number': 10, 'forest_letter': 'X', 'tree_letter': 'K'}, {'image_number': 11, 'forest_letter': 'H', 'tree_letter': 'K'}, {'image_number': 12, 'forest_letter': 'T', 'tree_letter': 'H'}, {'image_number': 13, 'forest_letter': 'L', 'tree_letter': 'H'}, {'image_number': 14, 'forest_letter': 'X', 'tree_letter': 'H'}, {'image_number': 15, 'forest_letter': 'H', 'tree_letter': 'H'}]" valType="str"/>
+      <Param name="conditions" updates="None" val="[{'image_number': 0, 'forest_letter': 'T', 'tree_letter': 'T'}, {'image_number': 1, 'forest_letter': 'L', 'tree_letter': 'T'}, {'image_number': 2, 'forest_letter': 'X', 'tree_letter': 'T'}]" valType="str"/>
       <Param name="conditionsFile" updates="None" val="setup_data/trials.xlsx" valType="file"/>
       <Param name="endPoints" updates="None" val="[0, 1]" valType="code"/>
       <Param name="isTrials" updates="None" val="True" valType="bool"/>
