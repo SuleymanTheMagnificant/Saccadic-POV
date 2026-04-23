@@ -132,7 +132,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version=expVersion,
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\users\\goodm\\OneDrive\\Documents\\Saccadic-POV\\PsychoPy code (PC computer)\\Saccadic-POV_lastrun.py',
+        originPath='/Users/w00085722/Documents/Saccadic-POV/PsychoPy code (PC computer)/Saccadic-POV_lastrun.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
